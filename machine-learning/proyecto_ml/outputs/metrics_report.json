@@ -1,0 +1,37 @@
+{
+  "clustering": {
+    "k": 8,
+    "silhouette": 0.21894739937385943,
+    "davies_bouldin": 1.1144772714909963
+  },
+  "random_forest": {
+    "cross_validation": {
+      "cv_accuracy_mean": 0.7309,
+      "cv_accuracy_std": 0.0079,
+      "cv_f1_mean": 0.7307,
+      "cv_f1_std": 0.008,
+      "cv_auc_mean": 0.8067,
+      "cv_auc_std": 0.0097
+    },
+    "validation_set": {
+      "accuracy": 0.6483,
+      "precision_macro": 0.555,
+      "precision_weighted": 0.6775,
+      "recall_macro": 0.5635,
+      "recall_weighted": 0.6483,
+      "f1_macro": 0.5563,
+      "f1_weighted": 0.6608,
+      "auc_roc": 0.6209
+    },
+    "test_set": {
+      "accuracy": 0.6388,
+      "precision_macro": 0.5519,
+      "precision_weighted": 0.6844,
+      "recall_macro": 0.5636,
+      "recall_weighted": 0.6388,
+      "f1_macro": 0.5513,
+      "f1_weighted": 0.657,
+      "auc_roc": 0.6295
+    }
+  }
+}
