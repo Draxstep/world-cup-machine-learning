@@ -54,7 +54,8 @@ def get_team_risk_map(
     Returns
     -------
     dict
-        {'intervals': [...], 'probabilities': [...], 'team': str, 'cluster': int|None}
+        {'intervals': [...], 'probabilities': [...], 'team': str, 'cluster': int|None,
+         'matches_played': int, 'total_goals': int}
     """
     team_name_lower = team_name.strip().lower()
 
@@ -70,6 +71,8 @@ def get_team_risk_map(
         print(f"  [risk_map] Usando equipo: '{team_name_lower}'")
 
     profile = team_profiles.loc[team_name_lower]
+    matches_played = int(profile.get("matches_played", 0))
+    total_goals = int(profile.get("total_goals", 0))
 
     rows = []
     for i, interval in enumerate(INTERVALS):
@@ -94,6 +97,64 @@ def get_team_risk_map(
         "is_knockout":   is_knockout,
         "is_home":       is_home,
         "cluster":       cluster,
+        "matches_played": matches_played,
+        "total_goals":    total_goals,
+    }
+
+
+def get_baseline_risk_map(
+    team_profiles: pd.DataFrame,
+    model,
+    is_knockout: int = 0,
+    is_home: int = 1,
+    cluster: int | None = None,
+) -> dict:
+    """
+    Calcula el promedio de probabilidad de gol por intervalo para un cluster
+    especifico o para todas las selecciones (promedio del torneo).
+
+    Returns
+    -------
+    dict
+        {'label': str, 'probabilities': [...], 'team_count': int}
+    """
+    subset = team_profiles
+    label = "Promedio del torneo"
+
+    if cluster is not None and "cluster" in team_profiles.columns:
+        subset = team_profiles[team_profiles["cluster"] == cluster]
+        if len(subset) > 0:
+            label = f"Promedio del cluster #{cluster}"
+
+    if len(subset) == 0:
+        subset = team_profiles
+
+    rows = []
+    for _, profile in subset.iterrows():
+        for i, _interval in enumerate(INTERVALS):
+            rows.append({
+                "interval_encoded": i,
+                "is_knockout":      is_knockout,
+                "is_home":          is_home,
+                "team_goals_hist":  float(profile.get("avg_goals_per_match", 1.5)),
+                "team_pen_rate":    float(profile.get("penalty_rate", 0.05)),
+                "team_mean_minute": float(profile.get("mean_minute", 45.0)),
+            })
+
+    X_query = pd.DataFrame(rows)[FEATURE_COLS].values.astype(float)
+    probs = model.predict_proba(X_query)[:, 1]
+
+    team_count = len(subset)
+    if team_count > 0:
+        probs_matrix = probs.reshape(team_count, len(INTERVALS))
+        avg_probs = probs_matrix.mean(axis=0)
+    else:
+        avg_probs = np.zeros(len(INTERVALS))
+
+    return {
+        "label": label,
+        "probabilities": [round(float(p), 4) for p in avg_probs],
+        "team_count": int(team_count),
     }
 
 

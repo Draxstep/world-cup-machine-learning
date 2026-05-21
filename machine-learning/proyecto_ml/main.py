@@ -49,6 +49,7 @@ from classification_model import (
     save_model as save_classifier, FEATURE_COLS,
 )
 from risk_map import get_team_risk_map, plot_risk_heatmap, get_team_profile_summary
+from report_exporter import collect_report_images, export_html_report, export_pdf_report
 
 
 def parse_args():
@@ -71,6 +72,10 @@ def parse_args():
                         help="Carpeta de salida para gráficas e informes.")
     parser.add_argument("--models-dir",    type=str, default="models",
                         help="Carpeta para persistir modelos entrenados.")
+    parser.add_argument("--export-html",   action="store_true",
+                        help="Exporta reporte en HTML (default si no hay flags).")
+    parser.add_argument("--export-pdf",    action="store_true",
+                        help="Exporta reporte en PDF.")
     return parser.parse_args()
 
 
@@ -229,6 +234,18 @@ def main():
         print(f"    Goles/partido     : {profile_summary['avg_goals_match']}")
         print(f"    Tasa penaltis     : {profile_summary['penalty_rate']}")
         print(f"    Minuto promedio   : {profile_summary['mean_minute']}")
+
+    # ── FASE 6: EXPORTACION DE REPORTES ───────────────────────────────────────
+    export_html = args.export_html or (not args.export_html and not args.export_pdf)
+    report_images = collect_report_images(args.output_dir)
+
+    if export_html:
+        html_path = export_html_report(args.output_dir, qr, all_metrics, cluster_summary, report_images)
+        print(f"\n  Reporte HTML guardado: {html_path}")
+
+    if args.export_pdf:
+        pdf_path = export_pdf_report(args.output_dir, qr, all_metrics, cluster_summary, report_images)
+        print(f"  Reporte PDF guardado: {pdf_path}")
 
     print("\n" + "=" * 65)
     print("  Pipeline completado exitosamente.")

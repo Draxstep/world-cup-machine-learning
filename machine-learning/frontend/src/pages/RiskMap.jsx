@@ -4,15 +4,21 @@ import { useRiskMap } from '../hooks/useRiskMap';
 import TeamSelector from '../components/ui/TeamSelector';
 import Loader from '../components/ui/Loader';
 import ErrorBanner from '../components/ui/ErrorBanner';
+import { useFlag } from '../hooks/useFlag';
+import FlagBadge from '../components/ui/FlagBadge';
+import { fetchTeamReport } from '../api/client';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  Cell, ResponsiveContainer,
+  ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip,
+  Cell, ResponsiveContainer, Legend, LabelList
 } from 'recharts';
 
 function probToColor(p) {
-  const r = Math.round(255 * p);
-  const g = Math.round(255 * (1 - p));
-  return `rgb(${r},${g},60)`;
+  const start = [20, 68, 48];
+  const end = [185, 223, 122];
+  const r = Math.round(start[0] + (end[0] - start[0]) * p);
+  const g = Math.round(start[1] + (end[1] - start[1]) * p);
+  const b = Math.round(start[2] + (end[2] - start[2]) * p);
+  return `rgb(${r},${g},${b})`;
 }
 
 export default function RiskMap() {
@@ -28,22 +34,25 @@ export default function RiskMap() {
     fetchData(team, knockout, home);
   };
 
+  const baseline = data?.baseline?.probabilities ?? [];
   const chartData = data?.intervals.map((interval, i) => ({
     interval,
     probabilidad: +(data.probabilities[i] * 100).toFixed(1),
+    baseline: baseline[i] ? +(baseline[i] * 100).toFixed(1) : null,
   })) ?? [];
+
+  const flagUrl = useFlag(data?.team || team, true);
 
   return (
     <main className="max-w-4xl mx-auto px-6 py-12">
-      <h1 className="font-display text-5xl text-gold tracking-widest mb-2">MAPA DE RIESGO</h1>
-      <p className="text-gray-400 mb-8 text-sm">
-        Probabilidad estimada de gol por intervalo de 15 minutos - Modelo Random Forest
-      </p>
+      
+      <div className="mb-4 text-sm text-content-muted">
+        {data?.matches_played ? `Basado en ${data.matches_played} partidos con gol` : ''}
+      </div>
 
-      <div className="bg-card-bg border border-border-subtle rounded-2xl p-6 mb-8">
-        <div className="grid md:grid-cols-3 gap-4 mb-5">
+      <div className="bg-surface border border-border-subtle rounded-2xl p-6 mb-8 shadow-sm">
+        <div className="grid md:grid-cols-3 gap-4 mb-4">
           <div>
-            <label className="block text-xs text-gray-400 mb-1.5">Equipo</label>
             <TeamSelector
               teams={teams}
               value={team}
@@ -51,97 +60,151 @@ export default function RiskMap() {
               disabled={teamsLoading}
             />
           </div>
+
           <div>
-            <label className="block text-xs text-gray-400 mb-1.5">Fase del torneo</label>
+            <label className="block text-xs text-content-muted mb-1 font-medium">Tipo de fase</label>
             <select
+              className="w-full bg-base border border-border-subtle text-content-main p-2 rounded-md focus:outline-none focus:border-brand-primary"
               value={knockout}
               onChange={(e) => setKnockout(Number(e.target.value))}
-              className="w-full bg-dark-bg border border-border-subtle text-white rounded-lg px-4 py-2.5
-                         focus:outline-none focus:ring-2 focus:ring-gold"
             >
               <option value={0}>Fase de grupos</option>
               <option value={1}>Eliminatoria</option>
             </select>
           </div>
+
           <div>
-            <label className="block text-xs text-gray-400 mb-1.5">Condicion</label>
+            <label className="block text-xs text-content-muted mb-1 font-medium">Localía</label>
             <select
+              className="w-full bg-base border border-border-subtle text-content-main p-2 rounded-md focus:outline-none focus:border-brand-primary"
               value={home}
               onChange={(e) => setHome(Number(e.target.value))}
-              className="w-full bg-dark-bg border border-border-subtle text-white rounded-lg px-4 py-2.5
-                         focus:outline-none focus:ring-2 focus:ring-gold"
             >
               <option value={1}>Local</option>
               <option value={0}>Visitante</option>
             </select>
           </div>
         </div>
-        <button
-          onClick={handleSubmit}
-          disabled={!team || loading}
-          className="bg-gold text-black font-semibold px-8 py-2.5 rounded-lg
-                     hover:bg-yellow-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-        >
-          {loading ? 'Analizando...' : 'Generar Mapa de Riesgo'}
-        </button>
-      </div>
 
-      <ErrorBanner message={error} />
-      {loading && <Loader text="Ejecutando modelo Random Forest..." />}
+        <div className="mb-6">
+          <button
+            className="w-full py-2 bg-brand-primary text-white font-medium rounded-md hover:bg-brand-dark transition-colors"
+            onClick={handleSubmit}
+            disabled={loading || teamsLoading}
+          >
+            {loading ? 'Analizando...' : 'Generar Mapa de Riesgo'}
+          </button>
+        </div>
 
-      {data && !loading && (
-        <div className="bg-card-bg border border-border-subtle rounded-2xl p-6">
-          <h2 className="font-display text-3xl text-white tracking-wide mb-1">
-            {data.team.replace(/(^\w|\s\w)/g, (m) => m.toUpperCase())}
-          </h2>
-          <p className="text-xs text-gray-400 mb-6">
-            Cluster asignado: <span className="text-gold font-semibold">#{data.cluster}</span>
-            &nbsp;-&nbsp;
-            {data.is_knockout ? 'Fase eliminatoria' : 'Fase de grupos'}
-            &nbsp;-&nbsp;
-            {data.is_home ? 'Local' : 'Visitante'}
-          </p>
+        {data && (
+          <div className="mb-4 flex gap-2">
+            <button
+              className="px-3 py-2 bg-brand-primary hover:bg-brand-dark text-white text-sm font-medium rounded-md transition-colors"
+              onClick={async () => {
+                try {
+                  const { blob, contentType, contentDisposition } = await fetchTeamReport({ team: data.team, format: 'pdf', mode: 'heatmap', is_knockout: data.is_knockout ? 1 : 0, is_home: data.is_home ? 1 : 0 });
+                  const url = window.URL.createObjectURL(new Blob([blob], { type: contentType }));
+                  const a = document.createElement('a');
+                  a.href = url;
+                  const filenameMatch = /filename=(?:"?)([^;\"]+)/i.exec(contentDisposition || '')
+                  a.download = filenameMatch ? filenameMatch[1] : `${data.team}_heatmap.pdf`;
+                  document.body.appendChild(a);
+                  a.click();
+                  a.remove();
+                  window.URL.revokeObjectURL(url);
+                } catch (err) {
+                  alert(err.message || 'Error al descargar reporte del equipo');
+                }
+              }}
+            >Descargar reporte equipo (PDF)</button>
 
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-              <XAxis dataKey="interval" tick={{ fill: '#9ca3af', fontSize: 12 }} />
-              <YAxis
-                domain={[0, 100]}
-                tickFormatter={(v) => `${v}%`}
-                tick={{ fill: '#9ca3af', fontSize: 12 }}
-              />
-              <Tooltip
-                formatter={(v) => [`${v}%`, 'P(gol)']}
-                contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8 }}
-                labelStyle={{ color: '#f5a623', fontWeight: 600 }}
-              />
-              <Bar dataKey="probabilidad" radius={[4, 4, 0, 0]}>
-                {chartData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={probToColor(entry.probabilidad / 100)}
-                  />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+            <button
+              className="px-3 py-2 bg-base border border-border-subtle text-content-main text-sm font-medium rounded-md hover:bg-surface transition-colors"
+              onClick={async () => {
+                try {
+                  const { blob, contentType, contentDisposition } = await fetchTeamReport({ team: data.team, format: 'csv', mode: 'heatmap', is_knockout: data.is_knockout ? 1 : 0, is_home: data.is_home ? 1 : 0 });
+                  const url = window.URL.createObjectURL(new Blob([blob], { type: contentType }));
+                  const a = document.createElement('a');
+                  a.href = url;
+                  const filenameMatch = /filename=(?:"?)([^;\"]+)/i.exec(contentDisposition || '')
+                  a.download = filenameMatch ? filenameMatch[1] : `${data.team}_heatmap.csv`;
+                  document.body.appendChild(a);
+                  a.click();
+                  a.remove();
+                  window.URL.revokeObjectURL(url);
+                } catch (err) {
+                  alert(err.message || 'Error al descargar CSV del equipo');
+                }
+              }}
+            >Descargar CSV</button>
+          </div>
+        )}
 
-          <div className="mt-6 grid grid-cols-7 gap-2 text-center">
-            {data.intervals.map((interval, i) => (
-              <div key={interval} className="bg-dark-bg rounded-lg p-2">
-                <div className="text-xs text-gray-400 mb-1">{interval}</div>
-                <div
-                  className="text-sm font-bold"
-                  style={{ color: probToColor(data.probabilities[i]) }}
-                >
-                  {(data.probabilities[i] * 100).toFixed(1)}%
+        <ErrorBanner message={error} />
+
+        {data && (
+          <div>
+            <div className="flex items-center gap-4 mb-6 mt-4">
+              <FlagBadge src={flagUrl} name={data.team} size={40} />
+              <div>
+                <h2 className="font-display text-3xl text-content-main tracking-wide mb-1">
+                  {data.team.replace(/(^\w|\s\w)/g, (m) => m.toUpperCase())}
+                </h2>
+                <div className="text-xs font-medium text-content-muted">
+                  Cluster #{data.cluster} &nbsp;•&nbsp; {data.is_knockout ? 'Eliminatoria' : 'Grupos'} &nbsp;•&nbsp; {data.is_home ? 'Local' : 'Visitante'}
                 </div>
               </div>
-            ))}
+            </div>
+            <ResponsiveContainer width="100%" height={320}>
+              <ComposedChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="interval" tick={{ fill: '#64748b', fontSize: 12 }} />
+                <YAxis
+                  domain={[0, 100]}
+                  tickFormatter={(v) => `${v}%`}
+                  tick={{ fill: '#64748b', fontSize: 12 }}
+                />
+                <Tooltip
+                  formatter={(v, name) => [ `${v}%`, name === 'baseline' ? (data.baseline?.label || 'Promedio') : 'P(gol)' ]}
+                  contentStyle={{ background: '#ffffff', border: '1px solid #d8e7dc', borderRadius: 8, boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                  labelStyle={{ color: '#1e293b', fontWeight: 600 }}
+                />
+                <Legend iconType="line" formatter={(value) => <span className="text-content-muted font-medium">{value === 'baseline' ? (data.baseline?.label || 'Promedio') : 'Equipo'}</span>} />
+
+                <Bar dataKey="probabilidad" radius={[6, 6, 2, 2]}>
+                  {chartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={probToColor(entry.probabilidad / 100)} />
+                  ))}
+                  <LabelList dataKey="probabilidad" position="top" formatter={(v) => `${v}%`} fill="#64748b" fontSize={11} />
+                </Bar>
+
+                <Line
+                  type="monotone"
+                  dataKey="baseline"
+                  stroke="#0A472E"
+                  strokeWidth={2}
+                  dot={false}
+                  strokeDasharray="4 4"
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+
+            <div className="mt-8 grid grid-cols-7 gap-2 text-center">
+              {data.intervals.map((interval, i) => (
+                <div key={interval} className="bg-base border border-border-subtle rounded-lg p-2 shadow-sm">
+                  <div className="text-xs text-content-muted mb-1">{interval}</div>
+                  <div
+                    className="text-sm font-bold"
+                    style={{ color: probToColor(data.probabilities[i]) }}
+                  >
+                    {(data.probabilities[i] * 100).toFixed(1)}%
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </main>
   );
 }

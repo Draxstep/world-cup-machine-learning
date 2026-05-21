@@ -1,17 +1,20 @@
 # Sistema de Inteligencia Táctica — Módulo ML
+
 **Proyecto Final — Electiva II | UPTC 2026**
 **Autores:** Oscar Mauricio González Montañez · Hector Julio Ramírez Díaz
 
 ---
 
 ## Descripción
-Pipeline de Machine Learning sobre el dataset *FIFA World Cup All Goals 1930–2022*.
+
+Pipeline de Machine Learning sobre el dataset _FIFA World Cup All Goals 1930–2022_.
 Este módulo cubre toda la parte de ML (limpieza, features, modelos, evaluación).
 La API REST y la interfaz web son responsabilidad del compañero de equipo (toca mejorar esa descripcion xD)
 
 ---
 
 ## Estructura del proyecto
+
 ```
 proyecto_ml/
 ├── data/
@@ -32,6 +35,7 @@ proyecto_ml/
 ---
 
 ## Instalación
+
 ```bash
 # 1. Clonar el repositorio
 git clone <url-del-repo>
@@ -52,60 +56,78 @@ pip install -r requirements.txt
 ## Ejecución
 
 ### Pipeline completo (selección automática de k)
+
 ```bash
 python main.py --data data/goals.csv
 ```
 
 ### Con k fijo y sin Grid Search (más rápido, útil para pruebas)
+
 ```bash
 python main.py --data data/goals.csv --k 4 --no-grid-search
 ```
 
 ### Generar mapa de riesgo para un equipo específico
+
 ```bash
 python main.py --data data/goals.csv --predict-team "brazil" --knockout 1 --home 0
 ```
 
+### Exportar reporte en PDF
+
+```bash
+python main.py --data data/goals.csv --export-pdf
+```
+
 ### Todos los argumentos disponibles
-| Argumento | Descripción | Default |
-|---|---|---|
-| `--data` | Ruta al CSV del dataset | *requerido* |
-| `--k` | Número de clústeres K-Means | automático |
-| `--no-grid-search` | Desactiva Grid Search | False |
-| `--predict-team` | Equipo para mapa de riesgo | None |
-| `--knockout` | 1=eliminatoria / 0=grupos | 0 |
-| `--home` | 1=local / 0=visitante | 1 |
-| `--output-dir` | Carpeta de salida | `outputs/` |
-| `--models-dir` | Carpeta de modelos | `models/` |
+
+| Argumento          | Descripción                 | Default     |
+| ------------------ | --------------------------- | ----------- |
+| `--data`           | Ruta al CSV del dataset     | _requerido_ |
+| `--k`              | Número de clústeres K-Means | automático  |
+| `--no-grid-search` | Desactiva Grid Search       | False       |
+| `--predict-team`   | Equipo para mapa de riesgo  | None        |
+| `--knockout`       | 1=eliminatoria / 0=grupos   | 0           |
+| `--home`           | 1=local / 0=visitante       | 1           |
+| `--output-dir`     | Carpeta de salida           | `outputs/`  |
+| `--models-dir`     | Carpeta de modelos          | `models/`   |
+| `--export-html`    | Exporta reporte HTML        | False       |
+| `--export-pdf`     | Exporta reporte PDF         | False       |
 
 ---
 
 ## Outputs generados
-| Archivo | Descripción |
-|---|---|
-| `outputs/quality_report.json` | Reporte de calidad del dataset |
-| `outputs/elbow_silhouette.png` | Método del codo + Silhouette por k |
-| `outputs/clusters_pca.png` | Scatter 2D de clústeres (PCA) |
-| `outputs/cluster_summary.csv` | Medias de features por clúster |
-| `outputs/team_profiles_with_cluster.csv` | Perfil de cada equipo + clúster |
-| `outputs/confusion_matrix_*.png` | Matrices de confusión |
-| `outputs/roc_curve_*.png` | Curvas ROC |
-| `outputs/feature_importance.png` | Importancia de características |
-| `outputs/learning_curve_*.png` | Curvas de aprendizaje (detección overfitting) |
-| `outputs/risk_map_<equipo>.png` | Mapa de riesgo temporal |
-| `outputs/metrics_report.json` | Métricas finales de ambos modelos |
-| `models/kmeans_model.pkl` | Modelo K-Means persistido |
-| `models/rf_model.pkl` | Modelo Random Forest persistido |
-| `models/xgboost_model.pkl` | Modelo XGBoost persistido |
+
+| Archivo                                  | Descripción                                   |
+| ---------------------------------------- | --------------------------------------------- |
+| `outputs/quality_report.json`            | Reporte de calidad del dataset                |
+| `outputs/elbow_silhouette.png`           | Método del codo + Silhouette por k            |
+| `outputs/clusters_pca.png`               | Scatter 2D de clústeres (PCA)                 |
+| `outputs/cluster_summary.csv`            | Medias de features por clúster                |
+| `outputs/team_profiles_with_cluster.csv` | Perfil de cada equipo + clúster               |
+| `outputs/confusion_matrix_*.png`         | Matrices de confusión                         |
+| `outputs/roc_curve_*.png`                | Curvas ROC                                    |
+| `outputs/feature_importance.png`         | Importancia de características                |
+| `outputs/learning_curve_*.png`           | Curvas de aprendizaje (detección overfitting) |
+| `outputs/risk_map_<equipo>.png`          | Mapa de riesgo temporal                       |
+| `outputs/metrics_report.json`            | Métricas finales de ambos modelos             |
+| `outputs/report.html`                    | Reporte HTML con métricas y graficas          |
+| `outputs/report.pdf`                     | Reporte PDF con métricas y graficas           |
+| `models/kmeans_model.pkl`                | Modelo K-Means persistido                     |
+| `models/rf_model.pkl`                    | Modelo Random Forest persistido               |
+| `models/xgboost_model.pkl`               | Modelo XGBoost persistido                     |
 
 ---
 
 ## Integración con la API (compañero)
+
 Los módulos `risk_map.py` expone dos funciones que la API puede importar directamente:
+
 - `get_team_risk_map(team_name, model, team_profiles, ...)` → JSON con probabilidades por intervalo.
 - `get_team_profile_summary(team_name, team_profiles)` → JSON con clúster y equipos similares.
 
 Los modelos se cargan con:
+
 ```python
 import joblib
 rf_model      = joblib.load("models/rf_model.pkl")

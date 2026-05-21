@@ -40,3 +40,26 @@ export const fetchClusters = () =>
 
 export const fetchQuality = () =>
   http.get('/stats/quality').then((r) => r.data);
+
+export const fetchReport = (format = 'pdf') =>
+  http.get('/stats/report', {
+    params: { format },
+    responseType: 'blob',
+  }).then((r) => ({
+    blob: r.data,
+    contentType: r.headers['content-type'],
+    contentDisposition: r.headers['content-disposition'],
+  }));
+
+export const fetchTeamReport = ({ team, format = 'pdf', mode = 'heatmap', is_knockout = 0, is_home = 1 }) =>
+  http.get('/stats/report/team', {
+    params: { team, format, mode, is_knockout, is_home },
+    responseType: 'blob',
+  }).then((r) => ({
+    blob: r.data,
+    contentType: r.headers['content-type'],
+    contentDisposition: r.headers['content-disposition'],
+  }));
+
+export const fetchTeamStats = () =>
+  http.get('/stats/teams').then((r) => r.data);

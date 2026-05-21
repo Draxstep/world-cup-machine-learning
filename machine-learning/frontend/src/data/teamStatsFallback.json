@@ -1,0 +1,652 @@
+{
+  "teams": [
+    {
+      "team": "algeria",
+      "team_code": "DZA",
+      "participations": 3,
+      "last_participation": 2014,
+      "titles": 0,
+      "best_finish": "Octavos"
+    },
+    {
+      "team": "angola",
+      "team_code": "AGO",
+      "participations": 1,
+      "last_participation": 2006,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "argentina",
+      "team_code": "ARG",
+      "participations": 18,
+      "last_participation": 2022,
+      "titles": 3,
+      "best_finish": "Campeon"
+    },
+    {
+      "team": "australia",
+      "team_code": "AUS",
+      "participations": 5,
+      "last_participation": 2022,
+      "titles": 0,
+      "best_finish": "Octavos"
+    },
+    {
+      "team": "austria",
+      "team_code": "AUT",
+      "participations": 7,
+      "last_participation": 1998,
+      "titles": 0,
+      "best_finish": "Semifinal"
+    },
+    {
+      "team": "belgium",
+      "team_code": "BEL",
+      "participations": 13,
+      "last_participation": 2022,
+      "titles": 0,
+      "best_finish": "Semifinal"
+    },
+    {
+      "team": "bolivia",
+      "team_code": "BOL",
+      "participations": 1,
+      "last_participation": 1994,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "bosnia and herzegovina",
+      "team_code": "BIH",
+      "participations": 1,
+      "last_participation": 2014,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "brazil",
+      "team_code": "BRA",
+      "participations": 22,
+      "last_participation": 2022,
+      "titles": 5,
+      "best_finish": "Campeon"
+    },
+    {
+      "team": "bulgaria",
+      "team_code": "BGR",
+      "participations": 7,
+      "last_participation": 1998,
+      "titles": 0,
+      "best_finish": "Semifinal"
+    },
+    {
+      "team": "cameroon",
+      "team_code": "CMR",
+      "participations": 8,
+      "last_participation": 2022,
+      "titles": 0,
+      "best_finish": "Cuartos"
+    },
+    {
+      "team": "canada",
+      "team_code": "CAN",
+      "participations": 1,
+      "last_participation": 2022,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "chile",
+      "team_code": "CHL",
+      "participations": 9,
+      "last_participation": 2014,
+      "titles": 0,
+      "best_finish": "Semifinal"
+    },
+    {
+      "team": "colombia",
+      "team_code": "COL",
+      "participations": 6,
+      "last_participation": 2018,
+      "titles": 0,
+      "best_finish": "Cuartos"
+    },
+    {
+      "team": "costa rica",
+      "team_code": "CRI",
+      "participations": 6,
+      "last_participation": 2022,
+      "titles": 0,
+      "best_finish": "Octavos"
+    },
+    {
+      "team": "croatia",
+      "team_code": "HRV",
+      "participations": 6,
+      "last_participation": 2022,
+      "titles": 0,
+      "best_finish": "Finalista"
+    },
+    {
+      "team": "cuba",
+      "team_code": "CUB",
+      "participations": 1,
+      "last_participation": 1938,
+      "titles": 0,
+      "best_finish": "Octavos"
+    },
+    {
+      "team": "czech republic",
+      "team_code": "CZE",
+      "participations": 1,
+      "last_participation": 2006,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "czechoslovakia",
+      "team_code": "CSK",
+      "participations": 7,
+      "last_participation": 1990,
+      "titles": 0,
+      "best_finish": "Finalista"
+    },
+    {
+      "team": "denmark",
+      "team_code": "DNK",
+      "participations": 6,
+      "last_participation": 2022,
+      "titles": 0,
+      "best_finish": "Cuartos"
+    },
+    {
+      "team": "east germany",
+      "team_code": "DDR",
+      "participations": 1,
+      "last_participation": 1974,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "ecuador",
+      "team_code": "ECU",
+      "participations": 4,
+      "last_participation": 2022,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "egypt",
+      "team_code": "EGY",
+      "participations": 3,
+      "last_participation": 2018,
+      "titles": 0,
+      "best_finish": "Octavos"
+    },
+    {
+      "team": "el salvador",
+      "team_code": "SLV",
+      "participations": 1,
+      "last_participation": 1982,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "england",
+      "team_code": "ENG",
+      "participations": 16,
+      "last_participation": 2022,
+      "titles": 1,
+      "best_finish": "Campeon"
+    },
+    {
+      "team": "france",
+      "team_code": "FRA",
+      "participations": 15,
+      "last_participation": 2022,
+      "titles": 2,
+      "best_finish": "Campeon"
+    },
+    {
+      "team": "germany",
+      "team_code": "DEU",
+      "participations": 10,
+      "last_participation": 2022,
+      "titles": 4,
+      "best_finish": "Campeon"
+    },
+    {
+      "team": "ghana",
+      "team_code": "GHA",
+      "participations": 4,
+      "last_participation": 2022,
+      "titles": 0,
+      "best_finish": "Cuartos"
+    },
+    {
+      "team": "greece",
+      "team_code": "GRC",
+      "participations": 2,
+      "last_participation": 2014,
+      "titles": 0,
+      "best_finish": "Octavos"
+    },
+    {
+      "team": "haiti",
+      "team_code": "HTI",
+      "participations": 1,
+      "last_participation": 1974,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "honduras",
+      "team_code": "HND",
+      "participations": 2,
+      "last_participation": 2014,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "hungary",
+      "team_code": "HUN",
+      "participations": 9,
+      "last_participation": 1986,
+      "titles": 0,
+      "best_finish": "Finalista"
+    },
+    {
+      "team": "iceland",
+      "team_code": "ISL",
+      "participations": 1,
+      "last_participation": 2018,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "iran",
+      "team_code": "IRN",
+      "participations": 6,
+      "last_participation": 2022,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "iraq",
+      "team_code": "IRQ",
+      "participations": 1,
+      "last_participation": 1986,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "israel",
+      "team_code": "ISR",
+      "participations": 1,
+      "last_participation": 1970,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "italy",
+      "team_code": "ITA",
+      "participations": 18,
+      "last_participation": 2014,
+      "titles": 4,
+      "best_finish": "Campeon"
+    },
+    {
+      "team": "ivory coast",
+      "team_code": "CIV",
+      "participations": 3,
+      "last_participation": 2014,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "jamaica",
+      "team_code": "JAM",
+      "participations": 1,
+      "last_participation": 1998,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "japan",
+      "team_code": "JPN",
+      "participations": 7,
+      "last_participation": 2022,
+      "titles": 0,
+      "best_finish": "Octavos"
+    },
+    {
+      "team": "kuwait",
+      "team_code": "KWT",
+      "participations": 1,
+      "last_participation": 1982,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "mexico",
+      "team_code": "MEX",
+      "participations": 17,
+      "last_participation": 2022,
+      "titles": 0,
+      "best_finish": "Cuartos"
+    },
+    {
+      "team": "morocco",
+      "team_code": "MAR",
+      "participations": 6,
+      "last_participation": 2022,
+      "titles": 0,
+      "best_finish": "Semifinal"
+    },
+    {
+      "team": "netherlands",
+      "team_code": "NLD",
+      "participations": 10,
+      "last_participation": 2022,
+      "titles": 0,
+      "best_finish": "Finalista"
+    },
+    {
+      "team": "new zealand",
+      "team_code": "NZL",
+      "participations": 2,
+      "last_participation": 2010,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "nigeria",
+      "team_code": "NGA",
+      "participations": 6,
+      "last_participation": 2018,
+      "titles": 0,
+      "best_finish": "Octavos"
+    },
+    {
+      "team": "north korea",
+      "team_code": "PRK",
+      "participations": 2,
+      "last_participation": 2010,
+      "titles": 0,
+      "best_finish": "Cuartos"
+    },
+    {
+      "team": "northern ireland",
+      "team_code": "NIR",
+      "participations": 3,
+      "last_participation": 1986,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "norway",
+      "team_code": "NOR",
+      "participations": 3,
+      "last_participation": 1998,
+      "titles": 0,
+      "best_finish": "Octavos"
+    },
+    {
+      "team": "panama",
+      "team_code": "PAN",
+      "participations": 1,
+      "last_participation": 2018,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "paraguay",
+      "team_code": "PRY",
+      "participations": 8,
+      "last_participation": 2010,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "peru",
+      "team_code": "PER",
+      "participations": 5,
+      "last_participation": 2018,
+      "titles": 0,
+      "best_finish": "Cuartos"
+    },
+    {
+      "team": "poland",
+      "team_code": "POL",
+      "participations": 9,
+      "last_participation": 2022,
+      "titles": 0,
+      "best_finish": "Semifinal"
+    },
+    {
+      "team": "portugal",
+      "team_code": "PRT",
+      "participations": 8,
+      "last_participation": 2022,
+      "titles": 0,
+      "best_finish": "Semifinal"
+    },
+    {
+      "team": "qatar",
+      "team_code": "QAT",
+      "participations": 1,
+      "last_participation": 2022,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "republic of ireland",
+      "team_code": "IRL",
+      "participations": 3,
+      "last_participation": 2002,
+      "titles": 0,
+      "best_finish": "Octavos"
+    },
+    {
+      "team": "romania",
+      "team_code": "ROU",
+      "participations": 7,
+      "last_participation": 1998,
+      "titles": 0,
+      "best_finish": "Cuartos"
+    },
+    {
+      "team": "russia",
+      "team_code": "RUS",
+      "participations": 4,
+      "last_participation": 2018,
+      "titles": 0,
+      "best_finish": "Cuartos"
+    },
+    {
+      "team": "saudi arabia",
+      "team_code": "SAU",
+      "participations": 5,
+      "last_participation": 2022,
+      "titles": 0,
+      "best_finish": "Octavos"
+    },
+    {
+      "team": "scotland",
+      "team_code": "SCO",
+      "participations": 7,
+      "last_participation": 1998,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "senegal",
+      "team_code": "SEN",
+      "participations": 3,
+      "last_participation": 2022,
+      "titles": 0,
+      "best_finish": "Octavos"
+    },
+    {
+      "team": "serbia",
+      "team_code": "SRB",
+      "participations": 3,
+      "last_participation": 2022,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "serbia and montenegro",
+      "team_code": "SCG",
+      "participations": 1,
+      "last_participation": 2006,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "slovakia",
+      "team_code": "SVK",
+      "participations": 1,
+      "last_participation": 2010,
+      "titles": 0,
+      "best_finish": "Octavos"
+    },
+    {
+      "team": "slovenia",
+      "team_code": "SVN",
+      "participations": 2,
+      "last_participation": 2010,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "south africa",
+      "team_code": "ZAF",
+      "participations": 3,
+      "last_participation": 2010,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "south korea",
+      "team_code": "KOR",
+      "participations": 10,
+      "last_participation": 2022,
+      "titles": 0,
+      "best_finish": "Semifinal"
+    },
+    {
+      "team": "soviet union",
+      "team_code": "SUN",
+      "participations": 7,
+      "last_participation": 1990,
+      "titles": 0,
+      "best_finish": "Semifinal"
+    },
+    {
+      "team": "spain",
+      "team_code": "ESP",
+      "participations": 16,
+      "last_participation": 2022,
+      "titles": 1,
+      "best_finish": "Campeon"
+    },
+    {
+      "team": "sweden",
+      "team_code": "SWE",
+      "participations": 12,
+      "last_participation": 2018,
+      "titles": 0,
+      "best_finish": "Finalista"
+    },
+    {
+      "team": "switzerland",
+      "team_code": "CHE",
+      "participations": 12,
+      "last_participation": 2022,
+      "titles": 0,
+      "best_finish": "Cuartos"
+    },
+    {
+      "team": "togo",
+      "team_code": "TGO",
+      "participations": 1,
+      "last_participation": 2006,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "tunisia",
+      "team_code": "TUN",
+      "participations": 6,
+      "last_participation": 2022,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "turkey",
+      "team_code": "TUR",
+      "participations": 2,
+      "last_participation": 2002,
+      "titles": 0,
+      "best_finish": "Semifinal"
+    },
+    {
+      "team": "ukraine",
+      "team_code": "UKR",
+      "participations": 1,
+      "last_participation": 2006,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "united arab emirates",
+      "team_code": "ARE",
+      "participations": 1,
+      "last_participation": 1990,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "united states",
+      "team_code": "USA",
+      "participations": 11,
+      "last_participation": 2022,
+      "titles": 0,
+      "best_finish": "Semifinal"
+    },
+    {
+      "team": "uruguay",
+      "team_code": "URY",
+      "participations": 14,
+      "last_participation": 2022,
+      "titles": 2,
+      "best_finish": "Campeon"
+    },
+    {
+      "team": "wales",
+      "team_code": "WAL",
+      "participations": 2,
+      "last_participation": 2022,
+      "titles": 0,
+      "best_finish": "Fase de grupos"
+    },
+    {
+      "team": "west germany",
+      "team_code": "DEU",
+      "participations": 10,
+      "last_participation": 1990,
+      "titles": 0,
+      "best_finish": "Finalista"
+    },
+    {
+      "team": "yugoslavia",
+      "team_code": "YUG",
+      "participations": 9,
+      "last_participation": 1998,
+      "titles": 0,
+      "best_finish": "Semifinal"
+    }
+  ]
+}

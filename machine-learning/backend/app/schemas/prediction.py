@@ -33,6 +33,9 @@ class RiskMapResponse(BaseModel):
     cluster: int | None
     is_knockout: int
     is_home: int
+    matches_played: int | None = None
+    total_goals: int | None = None
+    baseline: dict | None = None
 
 
 class TeamProfileResponse(BaseModel):

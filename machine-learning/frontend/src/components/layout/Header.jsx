@@ -10,9 +10,9 @@ const navLinks = [
 export default function Header() {
   const { pathname } = useLocation();
   return (
-    <header className="sticky top-0 z-50 bg-dark-bg/80 backdrop-blur border-b border-border-subtle">
+    <header className="sticky top-0 z-50 bg-brand-dark shadow-md">
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-        <Link to="/" className="font-display text-2xl text-gold tracking-wider">
+        <Link to="/" className="font-display text-2xl text-white tracking-wider">
           FIFA TACTICA ML
         </Link>
         <nav className="flex gap-6">
@@ -21,7 +21,7 @@ export default function Header() {
               key={to}
               to={to}
               className={`text-sm font-medium transition-colors ${
-                pathname === to ? 'text-gold' : 'text-gray-400 hover:text-white'
+                pathname === to ? 'text-brand-accent' : 'text-white/80 hover:text-brand-accent'
               }`}
             >
               {label}

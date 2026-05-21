@@ -12,6 +12,11 @@ const cards = [
     desc: 'Cluster historico y equipos con estilo ofensivo similar.',
   },
   {
+    to: '/teams',
+    title: 'Selecciones',
+    desc: 'Grilla de banderas con participaciones, titulos y ultima aparicion.',
+  },
+  {
     to: '/dashboard',
     title: 'Dashboard',
     desc: 'Metricas del modelo y resumen del clustering K-Means.',
@@ -21,26 +26,30 @@ const cards = [
 export default function Home() {
   return (
     <main className="max-w-5xl mx-auto px-6 py-20">
-      <h1 className="font-display text-6xl text-gold tracking-widest mb-4">
+      <div className="w-10 h-10 rounded-full bg-brand-primary/10 border border-brand-primary/20
+                      flex items-center justify-center text-brand-primary mb-4">
+        <span className="text-lg">#</span>
+      </div>
+      <h1 className="font-display text-5xl md:text-6xl text-content-main tracking-widest mb-4">
         INTELIGENCIA TACTICA FIFA
       </h1>
-      <p className="text-gray-300 text-lg max-w-2xl mb-14">
+      <p className="text-content-muted text-lg max-w-2xl mb-14">
         Sistema de Machine Learning sobre el historico de goles del Mundial FIFA 1930-2022.
         Modelos de clasificacion supervisada y clustering para asistir la toma de
         decisiones de cuerpos tecnicos.
       </p>
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {cards.map(({ to, title, desc }) => (
           <Link
             key={to}
             to={to}
-            className="group bg-card-bg border border-border-subtle rounded-2xl p-6
-                       hover:border-gold hover:shadow-lg hover:shadow-gold/10 transition-all"
+            className="group bg-surface border border-border-subtle rounded-2xl p-6
+                       hover:border-brand-primary hover:shadow-lg hover:shadow-brand-primary/10 transition-all"
           >
-            <h2 className="font-display text-2xl text-white mt-3 mb-2 tracking-wide">
+            <h2 className="font-display text-2xl text-content-main mt-3 mb-2 tracking-wide">
               {title}
             </h2>
-            <p className="text-gray-400 text-sm leading-relaxed">{desc}</p>
+            <p className="text-content-muted text-sm leading-relaxed">{desc}</p>
           </Link>
         ))}
       </div>

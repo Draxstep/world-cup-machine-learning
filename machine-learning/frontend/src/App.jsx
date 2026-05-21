@@ -4,6 +4,7 @@ import Footer from './components/layout/Footer';
 import Home from './pages/Home';
 import RiskMap from './pages/RiskMap';
 import TeamProfile from './pages/TeamProfile';
+import Teams from './pages/Teams';
 import Dashboard from './pages/Dashboard';
 
 export default function App() {
@@ -16,6 +17,7 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/risk-map" element={<RiskMap />} />
             <Route path="/profile" element={<TeamProfile />} />
+            <Route path="/teams" element={<Teams />} />
             <Route path="/dashboard" element={<Dashboard />} />
           </Routes>
         </div>

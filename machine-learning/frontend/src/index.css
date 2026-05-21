@@ -4,6 +4,33 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  @apply bg-dark-bg text-white font-body;
+@layer base {
+  body {
+    /* Aplicamos el fondo blanco y el color de texto optimizado para lectura */
+    @apply bg-bg-base text-text-main font-body antialiased;
+    min-height: 100vh;
+  }
+  
+  /* Puedes aplicar tu header directamente aquí si quieres que sea global, 
+     o simplemente usar las clases en tu componente React/Vue/HTML */
+  header {
+    @apply bg-brand-dark text-white; 
+  }
+}
+
+@layer utilities {
+  @keyframes fadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-up {
+    animation: fadeUp 420ms ease-out forwards;
+  }
 }

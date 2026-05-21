@@ -1,0 +1,8 @@
+team,interval,probability
+bolivia,0-15,0.0157
+bolivia,16-30,0.0542
+bolivia,31-45,0.1277
+bolivia,46-60,0.4945
+bolivia,61-75,0.2815
+bolivia,76-90,0.3642
+bolivia,90+,0.015

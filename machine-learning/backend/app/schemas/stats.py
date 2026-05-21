@@ -21,3 +21,18 @@ class MetricsReport(BaseModel):
 class TeamsListResponse(BaseModel):
     teams: list[str]
     total: int
+
+
+class TeamStatsItem(BaseModel):
+    team: str
+    team_code: str | None = None
+    participations: int
+    last_participation: int | None = None
+    titles: int
+    best_finish: str
+    matches_sample: int
+
+
+class TeamStatsResponse(BaseModel):
+    teams: list[TeamStatsItem]
+    total: int

@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     ML_MODELS_DIR: str = "../proyecto_ml/models"
     ML_OUTPUTS_DIR: str = "../proyecto_ml/outputs"
     ML_SRC_DIR: str = "../proyecto_ml/src"
+    ML_DATA_DIR: str = "../proyecto_ml/data"
     CORS_ORIGINS: str = "http://localhost:5173"
     API_VERSION: str = "v1"
 
@@ -48,6 +49,10 @@ class Settings(BaseSettings):
     @property
     def ml_src_dir(self) -> Path:
         return (Path(__file__).parent.parent / self.ML_SRC_DIR).resolve()
+
+    @property
+    def goals_csv_path(self) -> Path:
+        return (Path(__file__).parent.parent / self.ML_DATA_DIR / "goals.csv").resolve()
 
     @property
     def cors_origins_list(self) -> list[str]:
