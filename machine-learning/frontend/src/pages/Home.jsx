@@ -12,11 +12,6 @@ const cards = [
     desc: 'Cluster historico y equipos con estilo ofensivo similar.',
   },
   {
-    to: '/teams',
-    title: 'Selecciones',
-    desc: 'Grilla de banderas con participaciones, titulos y ultima aparicion.',
-  },
-  {
     to: '/dashboard',
     title: 'Dashboard',
     desc: 'Metricas del modelo y resumen del clustering K-Means.',
@@ -26,10 +21,6 @@ const cards = [
 export default function Home() {
   return (
     <main className="max-w-5xl mx-auto px-6 py-20">
-      <div className="w-10 h-10 rounded-full bg-brand-primary/10 border border-brand-primary/20
-                      flex items-center justify-center text-brand-primary mb-4">
-        <span className="text-lg">#</span>
-      </div>
       <h1 className="font-display text-5xl md:text-6xl text-content-main tracking-widest mb-4">
         INTELIGENCIA TACTICA FIFA
       </h1>
