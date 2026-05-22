@@ -224,19 +224,18 @@ export default function TeamAnalysis() {
 
   return (
     <main className="max-w-7xl mx-auto px-6 py-12 space-y-8">
-      <section className="grid gap-6 lg:grid-cols-[1.35fr_0.85fr] items-start">
-        <div className="space-y-4">
+      <section className="w-full">
+        <div className="space-y-4 w-full bg-surface border border-border-subtle rounded-2xl p-5 shadow-sm">
           <div>
             <h1 className="font-display text-4xl md:text-6xl text-content-main tracking-widest mb-3">
               ANALISIS TACTICO
             </h1>
-            <p className="max-w-3xl text-content-muted text-sm md:text-base leading-relaxed">
-              Selecciona un país por autocompletado o desde la grilla de banderas. Cuando eliges una selección,
-              la página despliega de forma conjunta su perfil táctico y su mapa de riesgo.
+            <p className="w-full text-content-muted text-sm md:text-base leading-relaxed">
+              Selecciona un país desde la lista o desde la grilla de banderas. Cuando eliges una selección, la página despliega de forma conjunta su perfil táctico y su mapa de riesgo.
             </p>
           </div>
 
-          <div className="bg-surface border border-border-subtle rounded-2xl p-5 shadow-sm">
+          <div className="w-full">
             <CountryAutocomplete
               teams={catalog}
               value={selectedCatalogItem?.label || ''}
@@ -247,15 +246,6 @@ export default function TeamAnalysis() {
               Puedes buscar por nombre, usar la grilla de banderas o entrar directamente al país que quieras analizar.
             </p>
           </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-brand-dark to-field-green rounded-3xl p-6 text-white shadow-xl">
-          <div className="text-xs uppercase tracking-[0.2em] text-white/70 mb-3">Vista guiada</div>
-          <div className="text-3xl font-display tracking-wide mb-3">Bandera primero. Detalle después.</div>
-          <p className="text-sm text-white/80 leading-relaxed">
-            La pantalla principal prioriza la exploración visual por continentes y el autocompletado.
-            Los controles tácticos aparecen únicamente cuando ya existe un país seleccionado.
-          </p>
         </div>
       </section>
 

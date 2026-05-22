@@ -146,32 +146,216 @@ def export_pdf_report(
     cluster_summary: Optional[pd.DataFrame],
     images: List[str],
 ) -> str:
-    """Generate a PDF report in the output directory."""
+    """Generate a structured PDF report in the output directory."""
     os.makedirs(output_dir, exist_ok=True)
 
-    quality_json = json.dumps(quality_report, indent=2, ensure_ascii=True)
-    metrics_json = json.dumps(metrics_report, indent=2, ensure_ascii=True)
+    path = os.path.join(output_dir, "report.pdf")
 
-    summary_lines = [
-        "ML Tactical Intelligence Report",
-        "",
-        f"Generated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}",
-        "",
-        "Outputs include quality report, metrics, cluster summary, and charts.",
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'ReportTitle',
+        parent=styles['Title'],
+        fontName='Helvetica-Bold',
+        fontSize=22,
+        leading=26,
+        textColor=colors.HexColor('#0A472E'),
+        alignment=TA_CENTER,
+        spaceAfter=6,
+    )
+    subtitle_style = ParagraphStyle(
+        'ReportSubtitle',
+        parent=styles['BodyText'],
+        fontName='Helvetica',
+        fontSize=9.5,
+        leading=12,
+        textColor=colors.HexColor('#475569'),
+        alignment=TA_CENTER,
+        spaceAfter=12,
+    )
+    section_style = ParagraphStyle(
+        'Section',
+        parent=styles['Heading2'],
+        fontName='Helvetica-Bold',
+        fontSize=12,
+        leading=14,
+        textColor=colors.HexColor('#0F172A'),
+        spaceAfter=8,
+        spaceBefore=4,
+    )
+    body_style = ParagraphStyle(
+        'Body',
+        parent=styles['BodyText'],
+        fontName='Helvetica',
+        fontSize=8.8,
+        leading=11,
+        textColor=colors.HexColor('#1F2937'),
+    )
+    label_style = ParagraphStyle(
+        'Label',
+        parent=body_style,
+        fontName='Helvetica-Bold',
+        textColor=colors.HexColor('#0F172A'),
+    )
+    small_style = ParagraphStyle(
+        'Small',
+        parent=body_style,
+        fontSize=8,
+        leading=10,
+        textColor=colors.HexColor('#64748B'),
+    )
+
+    def p(text, style=body_style):
+        return Paragraph(str(text), style)
+
+    def value_or_na(value, decimals=2):
+        if value is None or (isinstance(value, float) and pd.isna(value)):
+            return 'N/D'
+        if isinstance(value, (int, float)):
+            return f"{value:.{decimals}f}"
+        return str(value)
+
+    def pick(*values):
+        for value in values:
+            if value is not None and not (isinstance(value, float) and pd.isna(value)):
+                return value
+        return None
+
+    rf = metrics_report.get('random_forest', {})
+    clustering = metrics_report.get('clustering', {})
+    test_set = rf.get('test_set', {})
+    cross_validation = rf.get('cross_validation', {})
+
+    rf_summary = [
+        [p('Accuracy', label_style), p(value_or_na(_safe_float(test_set.get('accuracy')), 3)), p('Precisión global en test. Valores altos indican menor error de clasificación.')],
+        [p('F1 Weighted', label_style), p(value_or_na(_safe_float(test_set.get('f1_weighted')), 3)), p('Balance entre precisión y recall, ponderado por clase.')],
+        [p('AUC-ROC', label_style), p(value_or_na(_safe_float(test_set.get('auc_roc')), 3)), p('Capacidad de separar clases. 0.5 es azar; más alto es mejor.')],
+        [p('F1 CV (media)', label_style), p(value_or_na(_safe_float(cross_validation.get('cv_f1_mean')), 3)), p('Promedio de F1 en validación cruzada k-fold.')],
+        [p('F1 CV (desv.)', label_style), p(value_or_na(_safe_float(cross_validation.get('cv_f1_std')), 3)), p('Variabilidad entre folds. Más bajo sugiere mayor estabilidad.')],
     ]
 
-    path = os.path.join(output_dir, "report.pdf")
-    with PdfPages(path) as pdf:
-        _add_text_page(pdf, "Report Summary", "\n".join(summary_lines))
-        _add_text_page(pdf, "Quality Report", quality_json)
-        _add_text_page(pdf, "Metrics Report", metrics_json)
+    clustering_summary_rows = [
+        [p('K', label_style), p(value_or_na(clustering.get('k'), 0)), p('Número de clusters definidos por K-Means.')],
+        [p('Silhouette', label_style), p(value_or_na(_safe_float(clustering.get('silhouette')), 4)), p('Separación de clusters. Más cerca de 1 significa mejor separación.')],
+        [p('Davies-Bouldin', label_style), p(value_or_na(_safe_float(clustering.get('davies_bouldin')), 4)), p('Menor es mejor: clusters más compactos y separados.')],
+    ]
 
-        if cluster_summary is not None and not cluster_summary.empty:
-            _add_text_page(pdf, "Cluster Summary", cluster_summary.to_string())
+    dataset_rows = [
+        [p('Registros', label_style), p(value_or_na(quality_report.get('total_rows'), 0))],
+        [p('Partidos únicos', label_style), p(value_or_na(quality_report.get('matches'), 0))],
+        [p('Selecciones', label_style), p(value_or_na(quality_report.get('teams'), 0))],
+        [p('Penaltis', label_style), p(value_or_na(quality_report.get('penalties'), 0))],
+    ]
 
+    cluster_table = None
+    if cluster_summary is not None and not cluster_summary.empty:
+        display_columns = [
+            ('cluster', 'Cluster'),
+            ('matches_played', 'Partidos'),
+            ('avg_goals_per_match', 'Goles/partido'),
+            ('penalty_rate', 'Penalti'),
+            ('mean_minute', 'Minuto prom.'),
+            ('knockout_goal_ratio', 'Ratio KO'),
+        ]
+        existing = [column for column, _ in display_columns if column in cluster_summary.columns]
+        headers = [label for column, label in display_columns if column in existing]
+        rows = [headers]
+        for _, row in cluster_summary.sort_values(by=existing[0] if existing else cluster_summary.columns[0]).iterrows():
+            rows.append([
+                value_or_na(row.get(column), 2 if column != 'cluster' else 0)
+                for column, _ in display_columns if column in existing
+            ])
+        cluster_table = rows
+
+    story = [
+        p('ML Tactical Intelligence Report', title_style),
+        p(f"Generado: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}", subtitle_style),
+        p('Resumen ejecutivo', section_style),
+        p('Este informe resume el rendimiento del modelo de clasificación, el clustering K-Means y la calidad del dataset usado para el análisis táctico.', body_style),
+        Spacer(1, 8),
+        p('Random Forest', section_style),
+        Table(rf_summary, colWidths=[3.4 * cm, 3.2 * cm, 10.0 * cm], style=TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0A472E')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('BOX', (0, 0), (-1, -1), 0.7, colors.HexColor('#CBD5E1')),
+            ('INNERGRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E2E8F0')),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 8),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ])),
+        Spacer(1, 10),
+        p('Clustering', section_style),
+        Table(clustering_summary_rows, colWidths=[3.8 * cm, 2.8 * cm, 10.0 * cm], style=TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#199165')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('BOX', (0, 0), (-1, -1), 0.7, colors.HexColor('#CBD5E1')),
+            ('INNERGRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E2E8F0')),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 8),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ])),
+        Spacer(1, 10),
+        p('Calidad del dataset', section_style),
+        Table(dataset_rows, colWidths=[4.4 * cm, 11.2 * cm], style=TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#F8FAFC')),
+            ('BOX', (0, 0), (-1, -1), 0.7, colors.HexColor('#CBD5E1')),
+            ('INNERGRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E2E8F0')),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('ROWBACKGROUNDS', (0, 0), (-1, -1), [colors.white, colors.HexColor('#F8FAFC')]),
+            ('LEFTPADDING', (0, 0), (-1, -1), 8),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ])),
+    ]
+
+    if cluster_table:
+        story.extend([
+            Spacer(1, 10),
+            p('Resumen por cluster', section_style),
+            Table(cluster_table, style=TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#334155')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('BOX', (0, 0), (-1, -1), 0.7, colors.HexColor('#CBD5E1')),
+                ('INNERGRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E2E8F0')),
+                ('LEFTPADDING', (0, 0), (-1, -1), 6),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+                ('TOPPADDING', (0, 0), (-1, -1), 5),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+            ])),
+        ])
+
+    if images:
+        story.extend([
+            PageBreak(),
+            p('Gráficas generadas', section_style),
+            p('Las siguientes imágenes complementan el resumen con gráficos exportados por el pipeline.', small_style),
+            Spacer(1, 8),
+        ])
         for image_path in images:
-            _add_image_page(pdf, image_path)
+            story.extend([
+                p(os.path.basename(image_path), label_style),
+                RLImage(image_path, width=17.5 * cm, height=10.5 * cm),
+                Spacer(1, 8),
+            ])
 
+    doc = SimpleDocTemplate(
+        path,
+        pagesize=A4,
+        rightMargin=1.2 * cm,
+        leftMargin=1.2 * cm,
+        topMargin=1.2 * cm,
+        bottomMargin=1.2 * cm,
+        title='ML Tactical Intelligence Report',
+        author='ML Tactical Intelligence',
+    )
+    doc.build(story)
     return path
 
 

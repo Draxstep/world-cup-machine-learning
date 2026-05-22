@@ -26,6 +26,7 @@ class TeamsListResponse(BaseModel):
 class TeamStatsItem(BaseModel):
     team: str
     team_code: str | None = None
+    cluster: int | None = None
     participations: int
     last_participation: int | None = None
     titles: int

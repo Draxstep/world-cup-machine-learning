@@ -257,8 +257,11 @@ def get_team_stats() -> list[dict]:
         best_finish = "Campeon" if titles > 0 else STAGE_LABELS.get(rank, "Fase de grupos")
 
         matches_sample = 0
+        cluster_value = None
         if registry.team_profiles is not None and team in registry.team_profiles.index:
-            matches_sample = int(registry.team_profiles.loc[team].get("matches_played", 0))
+            team_row = registry.team_profiles.loc[team]
+            matches_sample = int(team_row.get("matches_played", 0))
+            cluster_value = int(team_row.get("cluster")) if pd.notna(team_row.get("cluster")) else None
 
         last_participation = last_year.get(team)
         last_participation = int(last_participation) if pd.notna(last_participation) else None
@@ -266,6 +269,7 @@ def get_team_stats() -> list[dict]:
         stats.append({
             "team": team,
             "team_code": team_code.get(team),
+            "cluster": cluster_value,
             "participations": int(participations.get(team, 0)),
             "last_participation": last_participation,
             "titles": titles,
