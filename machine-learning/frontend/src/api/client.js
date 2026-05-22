@@ -11,6 +11,25 @@ const http = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
+const jsonCache = new Map();
+const profileCache = new Map();
+
+function cacheJson(key, request) {
+  if (jsonCache.has(key)) {
+    return jsonCache.get(key);
+  }
+
+  const promise = request()
+    .then((response) => response.data)
+    .catch((error) => {
+      jsonCache.delete(key);
+      throw error;
+    });
+
+  jsonCache.set(key, promise);
+  return promise;
+}
+
 http.interceptors.response.use(
   (res) => res,
   (err) => {
@@ -20,7 +39,7 @@ http.interceptors.response.use(
 );
 
 export const fetchTeams = () =>
-  http.get('/predict/teams').then((r) => r.data);
+  cacheJson('predict/teams', () => http.get('/predict/teams'));
 
 export const fetchRiskMap = (teamName, isKnockout, isHome) =>
   http.post('/predict/risk-map', {
@@ -30,16 +49,30 @@ export const fetchRiskMap = (teamName, isKnockout, isHome) =>
   }).then((r) => r.data);
 
 export const fetchTeamProfile = (teamName) =>
-  http.get(`/predict/profile/${encodeURIComponent(teamName)}`).then((r) => r.data);
+  {
+    const key = `predict/profile/${String(teamName || '').toLowerCase()}`;
+    if (!profileCache.has(key)) {
+      profileCache.set(
+        key,
+        http.get(`/predict/profile/${encodeURIComponent(teamName)}`)
+          .then((r) => r.data)
+          .catch((error) => {
+            profileCache.delete(key);
+            throw error;
+          })
+      );
+    }
+    return profileCache.get(key);
+  };
 
 export const fetchMetrics = () =>
-  http.get('/stats/metrics').then((r) => r.data);
+  cacheJson('stats/metrics', () => http.get('/stats/metrics'));
 
 export const fetchClusters = () =>
-  http.get('/stats/clusters').then((r) => r.data);
+  cacheJson('stats/clusters', () => http.get('/stats/clusters'));
 
 export const fetchQuality = () =>
-  http.get('/stats/quality').then((r) => r.data);
+  cacheJson('stats/quality', () => http.get('/stats/quality'));
 
 export const fetchReport = (format = 'pdf') =>
   http.get('/stats/report', {
@@ -62,4 +95,4 @@ export const fetchTeamReport = ({ team, format = 'pdf', mode = 'heatmap', is_kno
   }));
 
 export const fetchTeamStats = () =>
-  http.get('/stats/teams').then((r) => r.data);
+  cacheJson('stats/teams', () => http.get('/stats/teams'));

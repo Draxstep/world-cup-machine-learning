@@ -8,7 +8,7 @@ export default function TeamSelector({ teams, value, onChange, disabled }) {
       value={value}
       onChange={(e) => onChange(e.target.value)}
       disabled={disabled}
-      className="w-full bg-white p-2.5 rounded-md text-slate-900 border border-border-subtle focus:outline-none focus:ring-2 focus:ring-field-green capitalize"
+      className="w-full bg-base border border-border-subtle text-content-main p-2 rounded-md focus:outline-none focus:border-brand-primary capitalize"
     >
       <option value="">- Selecciona un equipo -</option>
       {teams.map((t) => (

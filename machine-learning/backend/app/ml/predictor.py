@@ -126,15 +126,18 @@ def get_available_teams() -> list[str]:
     return registry.available_teams
 
 
+@lru_cache(maxsize=1)
 def get_metrics() -> dict:
     return registry.metrics_report
 
 
+@lru_cache(maxsize=1)
 def get_cluster_summary() -> dict:
     """Resumen por cluster como dict serializable."""
     return registry.cluster_summary.reset_index().to_dict(orient="records")
 
 
+@lru_cache(maxsize=1)
 def get_quality_report() -> dict:
     return registry.quality_report
 
@@ -191,15 +194,46 @@ def export_team_report(team_name: str, format_name: str = "pdf", mode: str = "he
         except Exception:
             heatmap_path = None
 
+    profile = risk_map.get_team_profile_summary(
+        team_name=team_name,
+        team_profiles=registry.team_profiles,
+    )
+
+    stats = next(
+        (item for item in get_team_stats() if item.get('team') == team_risk.get('team')),
+        {},
+    )
+
+    cluster_row = {}
+    if registry.cluster_summary is not None and team_risk.get('cluster') is not None:
+        try:
+            matched = registry.cluster_summary.reset_index().loc[
+                registry.cluster_summary.reset_index()['cluster'] == team_risk.get('cluster')
+            ]
+            if not matched.empty:
+                cluster_row = matched.iloc[0].to_dict()
+        except Exception:
+            cluster_row = {}
+
+    team_payload = {
+        **team_risk,
+        'risk_map': team_risk,
+        'profile': profile,
+        'stats': stats,
+        'cluster_row': cluster_row,
+        'similar_teams': profile.get('similar_teams', []),
+    }
+
     if format_name == 'csv':
         return exporter.export_team_csv(output_dir, team_risk)
 
     if format_name == 'pdf':
-        return exporter.export_team_pdf(output_dir, team_risk, heatmap_path)
+        return exporter.export_team_pdf(output_dir, team_payload, heatmap_path)
 
     raise ValueError("Formato de reporte no soportado para equipo. Use 'pdf' o 'csv'.")
 
 
+@lru_cache(maxsize=1)
 def get_team_stats() -> list[dict]:
     """Retorna estadisticas de selecciones para la grilla de banderas."""
     df = _goals_dataset()

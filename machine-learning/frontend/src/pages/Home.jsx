@@ -2,14 +2,9 @@ import { Link } from 'react-router-dom';
 
 const cards = [
   {
-    to: '/risk-map',
-    title: 'Mapa de Riesgo',
-    desc: 'Probabilidad de gol por intervalo de 15 minutos para cualquier seleccion.',
-  },
-  {
-    to: '/profile',
-    title: 'Perfil Tactico',
-    desc: 'Cluster historico y equipos con estilo ofensivo similar.',
+    to: '/team',
+    title: 'Analisis Tactico',
+    desc: 'Selecciona un pais y ve su perfil tactico y mapa de riesgo en una sola vista.',
   },
   {
     to: '/dashboard',
@@ -22,7 +17,7 @@ export default function Home() {
   return (
     <main className="max-w-5xl mx-auto px-6 py-20">
       <h1 className="font-display text-5xl md:text-6xl text-content-main tracking-widest mb-4">
-        INTELIGENCIA TACTICA FIFA
+        SISTEMA INTELIGENCIA TACTICA
       </h1>
       <p className="text-content-muted text-lg max-w-2xl mb-14">
         Sistema de Machine Learning sobre el historico de goles del Mundial FIFA 1930-2022.

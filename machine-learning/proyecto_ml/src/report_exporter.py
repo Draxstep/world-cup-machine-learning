@@ -12,9 +12,24 @@ from typing import List, Optional
 
 import pandas as pd
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
+from reportlab.lib import colors
+from reportlab.lib.enums import TA_CENTER
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+from reportlab.lib.units import cm
+from reportlab.platypus import (
+    Image as RLImage,
+    PageBreak,
+    Paragraph,
+    SimpleDocTemplate,
+    Spacer,
+    Table,
+    TableStyle,
+)
 
 
 def collect_report_images(output_dir: str) -> List[str]:
@@ -160,22 +175,6 @@ def export_pdf_report(
     return path
 
 
-def export_team_pdf(output_dir: str, team_report: dict, heatmap_path: str | None = None) -> str:
-    """Generate a PDF for a single team's tactical report.
-
-    team_report: dict with keys like 'team', 'intervals', 'probabilities',
-    profile fields, and optional metadata.
-    """
-    os.makedirs(output_dir, exist_ok=True)
-
-    path = os.path.join(output_dir, f"team_report_{team_report.get('team', 'team')}.pdf")
-    with PdfPages(path) as pdf:
-        _add_text_page(pdf, f"Team Report - {team_report.get('team', '').title()}", json.dumps(team_report, indent=2, ensure_ascii=False))
-        if heatmap_path and os.path.exists(heatmap_path):
-            _add_image_page(pdf, heatmap_path)
-    return path
-
-
 def export_team_csv(output_dir: str, team_report: dict) -> str:
     """Export team report data as a CSV containing intervals and probabilities."""
     os.makedirs(output_dir, exist_ok=True)
@@ -192,4 +191,227 @@ def export_team_csv(output_dir: str, team_report: dict) -> str:
         })
     df = pd.DataFrame(rows)
     df.to_csv(path, index=False, encoding='utf-8')
+    return path
+
+
+def _safe_float(value, default=0.0):
+    try:
+        if value is None or pd.isna(value):
+            return float(default)
+        return float(value)
+    except Exception:
+        return float(default)
+
+
+def _format_percent(value: float) -> str:
+    return f"{value * 100:.1f}%"
+
+
+def _format_team_name(name: str) -> str:
+    return str(name or '').replace('_', ' ').title()
+
+
+def export_team_pdf(output_dir: str, team_report: dict, heatmap_path: str | None = None) -> str:
+    """Generate a PDF for a single team's tactical report using the same fields shown in the web UI."""
+    os.makedirs(output_dir, exist_ok=True)
+
+    team = _format_team_name(team_report.get('team', 'team'))
+    path = os.path.join(output_dir, f"team_report_{team_report.get('team', 'team')}.pdf")
+
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'TeamTitle',
+        parent=styles['Title'],
+        fontName='Helvetica-Bold',
+        fontSize=20,
+        leading=24,
+        textColor=colors.HexColor('#0A472E'),
+        alignment=TA_CENTER,
+        spaceAfter=6,
+    )
+    subtitle_style = ParagraphStyle(
+        'Subtitle',
+        parent=styles['BodyText'],
+        fontName='Helvetica',
+        fontSize=9.5,
+        leading=12,
+        textColor=colors.HexColor('#475569'),
+        alignment=TA_CENTER,
+        spaceAfter=12,
+    )
+    section_style = ParagraphStyle(
+        'Section',
+        parent=styles['Heading2'],
+        fontName='Helvetica-Bold',
+        fontSize=12,
+        leading=14,
+        textColor=colors.HexColor('#0F172A'),
+        spaceAfter=8,
+        spaceBefore=4,
+    )
+    body_style = ParagraphStyle(
+        'Body',
+        parent=styles['BodyText'],
+        fontName='Helvetica',
+        fontSize=9,
+        leading=12,
+        textColor=colors.HexColor('#1F2937'),
+    )
+    label_style = ParagraphStyle(
+        'Label',
+        parent=body_style,
+        fontName='Helvetica-Bold',
+        textColor=colors.HexColor('#0F172A'),
+    )
+    small_style = ParagraphStyle(
+        'Small',
+        parent=body_style,
+        fontSize=8,
+        leading=10,
+        textColor=colors.HexColor('#64748B'),
+    )
+
+    def p(text, style=body_style):
+        return Paragraph(str(text), style)
+
+    profile = team_report.get('profile') or {}
+    stats = team_report.get('stats') or {}
+    risk_map = team_report.get('risk_map') or team_report
+    cluster = team_report.get('cluster_row') or {}
+    similar_teams = team_report.get('similar_teams') or profile.get('similar_teams') or []
+    intervals = risk_map.get('intervals', [])
+    probabilities = risk_map.get('probabilities', [])
+    baseline = (risk_map.get('baseline') or {}).get('probabilities', [])
+
+    def value_or_na(value, decimals=2):
+        if value is None or (isinstance(value, float) and pd.isna(value)):
+            return 'N/D'
+        if isinstance(value, (int, float)):
+            return f"{value:.{decimals}f}"
+        return str(value)
+
+    def pick(*values):
+        for value in values:
+            if value is not None and not (isinstance(value, float) and pd.isna(value)):
+                return value
+        return None
+
+    summary_data = [
+        [p('Equipo', label_style), p(team)],
+        [p('Cluster', label_style), p(f"#{profile.get('cluster', risk_map.get('cluster', 'N/D'))}")],
+        [p('Tipo de fase', label_style), p('Eliminatoria' if risk_map.get('is_knockout') else 'Fase de grupos')],
+        [p('Localía', label_style), p('Local' if risk_map.get('is_home') else 'Visitante')],
+    ]
+
+    stats_data = [
+        [p('Participaciones', label_style), p(value_or_na(stats.get('participations'), 0))],
+        [p('Títulos', label_style), p(value_or_na(stats.get('titles'), 0))],
+        [p('Mejor posición', label_style), p(value_or_na(stats.get('best_finish')))],
+        [p('Última participación', label_style), p(value_or_na(stats.get('last_participation'), 0))],
+        [p('Goles / partido', label_style), p(value_or_na(pick(profile.get('avg_goals_match'), team_report.get('avg_goals_match')), 2))],
+        [p('Tasa penaltis', label_style), p(_format_percent(_safe_float(pick(profile.get('penalty_rate'), team_report.get('penalty_rate')), 0)))],
+        [p('Minuto promedio', label_style), p(value_or_na(pick(profile.get('mean_minute'), team_report.get('mean_minute')), 1))],
+        [p('Ratio eliminatoria', label_style), p(_format_percent(_safe_float(pick(profile.get('knockout_ratio'), team_report.get('knockout_ratio')), 0)))],
+    ]
+
+    radar_data = [
+        ['Métrica', 'Equipo', 'Cluster'],
+        ['Goles / partido', value_or_na(pick(profile.get('avg_goals_match'), team_report.get('avg_goals_match')), 2), value_or_na(cluster.get('avg_goals_per_match'), 2)],
+        ['Penaltis', _format_percent(_safe_float(pick(profile.get('penalty_rate'), team_report.get('penalty_rate')), 0)), _format_percent(_safe_float(cluster.get('penalty_rate'), 0))],
+        ['Autogoles', _format_percent(_safe_float(pick(profile.get('own_goal_rate'), team_report.get('own_goal_rate')), 0)), _format_percent(_safe_float(cluster.get('own_goal_rate'), 0))],
+        ['Minuto promedio', value_or_na(pick(profile.get('mean_minute'), team_report.get('mean_minute')), 1), value_or_na(cluster.get('mean_minute'), 1)],
+        ['Ratio eliminatoria', _format_percent(_safe_float(pick(profile.get('knockout_ratio'), team_report.get('knockout_ratio')), 0)), _format_percent(_safe_float(cluster.get('knockout_goal_ratio'), 0))],
+    ]
+
+    interval_rows = [[p('Intervalo', label_style), p('Equipo', label_style), p('Promedio cluster', label_style)]]
+    for idx, interval in enumerate(intervals):
+        team_prob = probabilities[idx] if idx < len(probabilities) else None
+        cluster_prob = baseline[idx] if idx < len(baseline) else None
+        interval_rows.append([
+            p(interval),
+            p(_format_percent(_safe_float(team_prob, 0))),
+            p(_format_percent(_safe_float(cluster_prob, 0))) if cluster_prob is not None else p('N/D'),
+        ])
+
+    similar_text = ', '.join(_format_team_name(team_name) for team_name in sorted(similar_teams)) if similar_teams else 'Sin equipos similares registrados.'
+
+    story = [
+        p('Reporte táctico del equipo', title_style),
+        p(f"{team} · Información unificada de perfil táctico y mapa de riesgo", subtitle_style),
+        Table(summary_data, colWidths=[5.0 * cm, 10.5 * cm], style=TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), colors.whitesmoke),
+            ('BOX', (0, 0), (-1, -1), 0.7, colors.HexColor('#CBD5E1')),
+            ('INNERGRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E2E8F0')),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 8),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ])),
+        Spacer(1, 10),
+        p('Resumen del perfil', section_style),
+        Table(stats_data, colWidths=[6.0 * cm, 9.5 * cm], style=TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#F8FAFC')),
+            ('BOX', (0, 0), (-1, -1), 0.7, colors.HexColor('#CBD5E1')),
+            ('INNERGRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E2E8F0')),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('ROWBACKGROUNDS', (0, 0), (-1, -1), [colors.white, colors.HexColor('#F8FAFC')]),
+            ('LEFTPADDING', (0, 0), (-1, -1), 8),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ])),
+        Spacer(1, 10),
+        p('Comparación técnica con el cluster', section_style),
+        Table(radar_data, colWidths=[5.5 * cm, 4.75 * cm, 4.75 * cm], style=TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0A472E')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('BOX', (0, 0), (-1, -1), 0.7, colors.HexColor('#CBD5E1')),
+            ('INNERGRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E2E8F0')),
+            ('ALIGN', (1, 1), (-1, -1), 'CENTER'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 8),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ])),
+        Spacer(1, 10),
+        p('Mapa de riesgo por intervalos', section_style),
+        Table(interval_rows, colWidths=[5.0 * cm, 4.0 * cm, 5.5 * cm], style=TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#199165')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('BOX', (0, 0), (-1, -1), 0.7, colors.HexColor('#CBD5E1')),
+            ('INNERGRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E2E8F0')),
+            ('ALIGN', (1, 1), (-1, -1), 'CENTER'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 8),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ])),
+        Spacer(1, 10),
+        p('Equipos históricos similares', section_style),
+        p(similar_text, body_style),
+        Spacer(1, 12),
+        p(f"Generado: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}", small_style),
+    ]
+
+    if heatmap_path and os.path.exists(heatmap_path):
+        story.extend([
+            PageBreak(),
+            p('Mapa de riesgo visual', section_style),
+            RLImage(heatmap_path, width=17.5 * cm, height=10.5 * cm),
+        ])
+
+    doc = SimpleDocTemplate(
+        path,
+        pagesize=A4,
+        rightMargin=1.3 * cm,
+        leftMargin=1.3 * cm,
+        topMargin=1.3 * cm,
+        bottomMargin=1.3 * cm,
+        title=f'Reporte táctico {team}',
+        author='ML Tactical Intelligence',
+    )
+    doc.build(story)
     return path

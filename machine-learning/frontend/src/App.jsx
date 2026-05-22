@@ -1,11 +1,9 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import Home from './pages/Home';
-import RiskMap from './pages/RiskMap';
-import TeamProfile from './pages/TeamProfile';
-import Teams from './pages/Teams';
 import Dashboard from './pages/Dashboard';
+import TeamAnalysis from './pages/TeamAnalysis';
 
 export default function App() {
   return (
@@ -15,9 +13,9 @@ export default function App() {
         <div className="flex-1">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/risk-map" element={<RiskMap />} />
-            <Route path="/profile" element={<TeamProfile />} />
-            <Route path="/teams" element={<Teams />} />
+            <Route path="/team/:team?" element={<TeamAnalysis />} />
+            <Route path="/risk-map" element={<Navigate to="/team" replace />} />
+            <Route path="/profile" element={<Navigate to="/team" replace />} />
             <Route path="/dashboard" element={<Dashboard />} />
           </Routes>
         </div>

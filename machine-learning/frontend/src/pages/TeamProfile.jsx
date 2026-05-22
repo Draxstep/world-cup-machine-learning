@@ -29,8 +29,8 @@ function StatCard({ label, value, tooltip, delta }) {
   );
 }
 
-function SimilarTeamTag({ name, useApiFlags }) {
-  const flagUrl = useFlag(name, useApiFlags);
+function SimilarTeamTag({ name }) {
+  const flagUrl = useFlag(name, true);
   return (
     <span className="flex items-center gap-2 bg-base border border-border-subtle shadow-sm
                      text-content-main font-medium text-xs px-3 py-1.5 rounded-full capitalize">
@@ -41,13 +41,12 @@ function SimilarTeamTag({ name, useApiFlags }) {
 }
 
 export default function TeamProfile() {
-  const { teams: statsTeams, source, loading: statsLoading } = useTeamStats();
+  const { teams: statsTeams, loading: statsLoading } = useTeamStats();
   const [team, setTeam] = useState('');
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [clusters, setClusters] = useState([]);
-  const [useApiFlags, setUseApiFlags] = useState(true);
 
   useEffect(() => {
     fetchClusters()
@@ -131,18 +130,7 @@ export default function TeamProfile() {
           <label className="block text-xs text-content-muted mb-1.5 font-medium">Equipo</label>
           <TeamSelector teams={statsTeams.map((t) => t.team)} value={team} onChange={setTeam} disabled={statsLoading} />
         </div>
-        <div className="flex items-center justify-between text-xs text-content-muted mb-4 font-medium">
-          <span>Fuente flags: {source}</span>
-          <label className="inline-flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={useApiFlags}
-              onChange={(e) => setUseApiFlags(e.target.checked)}
-              className="accent-brand-primary"
-            />
-            Usar API externa
-          </label>
-        </div>
+        <div className="mb-4" />
         <button
           onClick={handleFetch}
           disabled={!team || loading}
@@ -284,7 +272,7 @@ export default function TeamProfile() {
                 [...data.similar_teams]
                   .sort((a, b) => a.localeCompare(b))
                   .map((t) => (
-                    <SimilarTeamTag key={t} name={t} useApiFlags={useApiFlags} />
+                    <SimilarTeamTag key={t} name={t} />
                   ))
               )}
             </div>

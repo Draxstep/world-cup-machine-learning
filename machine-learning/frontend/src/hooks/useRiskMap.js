@@ -2,7 +2,7 @@
  * useRiskMap - hook para obtener el mapa de riesgo on-demand.
  * No hace fetch al montar; expone fetchData(team, knockout, home).
  */
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { fetchRiskMap } from '../api/client';
 
 export function useRiskMap() {
@@ -10,7 +10,7 @@ export function useRiskMap() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchData = async (teamName, isKnockout, isHome) => {
+  const fetchData = useCallback(async (teamName, isKnockout, isHome) => {
     setLoading(true);
     setError(null);
     setData(null);
@@ -22,7 +22,7 @@ export function useRiskMap() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   return { data, loading, error, fetchData };
 }

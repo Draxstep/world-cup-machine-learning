@@ -53,6 +53,7 @@ export default function RiskMap() {
       <div className="bg-surface border border-border-subtle rounded-2xl p-6 mb-8 shadow-sm">
         <div className="grid md:grid-cols-3 gap-4 mb-4">
           <div>
+            <label className="block text-xs text-content-muted mb-1 font-medium">Equipo</label>
             <TeamSelector
               teams={teams}
               value={team}
